@@ -30,3 +30,7 @@ Screenshots are deterministic renders of the game's own code: `game/src/shots.js
 ## Hand-in
 
 `main.ts` (Node 22, stdlib only) copies `game/` and `screenshots/` to `/output` and writes `/output/dossier.json` with `buildDossier` from `vendor/makefun-game.ts` (the kit's copy, unchanged).
+
+## Development notes
+
+The game was built in one recorded session: research first (kit rules, the judge's screenshot-first criteria, and the winning pattern from best-game-01's top entries — one memorable mechanic plus visible progression), then the code, then a visual pass. The core loop was verified in Node before screenshots were taken: cook 6s → ready → scoop → three toppings → perfect serve pays 2,533 coins and starts a combo, and the shift ends cleanly at 150s. Screenshots were re-shot after two fixes — the pot's ready hint went from per-nest to one shared line, and the rush banner was shortened so it never covers a panel header. Both runs of `main.ts` produce byte-identical output.
