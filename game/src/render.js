@@ -271,8 +271,22 @@ function drawChef(ctx, cx, top, s, now) {
   rr(ctx, cx - 34 * s, top + 78 * s, 68 * s, 176 * s, 12 * s); ctx.fill();
   ctx.fillStyle = '#fff8e8';
   rr(ctx, cx - 24 * s, top + 78 * s, 48 * s, 176 * s, 10 * s); ctx.fill();
+  // The uniform carries the make.fun logo: name patch, ghost mark, wordmark.
   ctx.fillStyle = '#2b7a8c';
-  text(ctx, 'KOKI', cx, top + 124 * s, 12 * s, '#2b7a8c', 'bold', 'center');
+  text(ctx, 'KOKI', cx, top + 94 * s, 9 * s, '#2b7a8c', 'bold', 'center');
+  ctx.fillStyle = '#2b1c10';
+  ctx.beginPath();
+  ctx.moveTo(cx - 10 * s, top + 122 * s);
+  ctx.lineTo(cx - 10 * s, top + 108 * s);
+  ctx.arc(cx, top + 108 * s, 10 * s, Math.PI, 0);
+  ctx.lineTo(cx + 10 * s, top + 122 * s);
+  ctx.quadraticCurveTo(cx + 5 * s, top + 118 * s, cx, top + 122 * s);
+  ctx.quadraticCurveTo(cx - 5 * s, top + 118 * s, cx - 10 * s, top + 122 * s);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#fff8e8';
+  ctx.beginPath(); ctx.arc(cx - 4 * s, top + 107 * s, 2 * s, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + 4 * s, top + 107 * s, 2 * s, 0, Math.PI * 2); ctx.fill();
+  text(ctx, 'make.fun', cx, top + 140 * s, 10 * s, '#2b1c10', 'bold', 'center');
   // Left arm resting on the counter.
   ctx.strokeStyle = '#7a2d22'; ctx.lineWidth = 10 * s; ctx.lineCap = 'round';
   ctx.beginPath(); ctx.moveTo(cx - 30 * s, top + 92 * s); ctx.lineTo(cx - 44 * s, top + 170 * s); ctx.stroke();

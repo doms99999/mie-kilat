@@ -42,3 +42,7 @@ The post-build audit caught one real soft-lock: burnt nests could never leave th
 ## v3 — the chef (user request)
 
 The game had no person in it, so v3 adds KOKI, the chef who prepares the food: a vector-drawn vendor with a toque, apron and name tag, standing left of the pot with a ladle that stirs the pot (the ladle bobs on the same frozen clock as the steam, so screenshots stay reproducible). The same chef appears large on the title screen. To make room, the pot shifted right and the bowl panel narrowed; the recipe checklist is now icons with a green ring + tick for toppings already in the bowl. The pot header typo ("PANCi") was fixed along the way. All four screenshots were re-shot and re-verified after the change.
+
+## v4 — make.fun logo on the uniform (user request)
+
+The chef's apron now carries the make.fun logo, drawn in vector like everything else in the game: the KOKI name patch, the ghost mark, and the "make.fun" wordmark, printed on the white apron in both the in-game chef and the large title-screen chef. All four screenshots were re-shot and re-verified after the change.
