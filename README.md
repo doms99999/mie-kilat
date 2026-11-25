@@ -1,0 +1,32 @@
+[![make.fun](https://make.fun/badge/best-cooking-game-20261125-0137.svg)](https://make.fun/bounty/best-cooking-game-20261125-0137)
+[![rank](https://make.fun/badge/best-cooking-game-20261125-0137/doms99999/mie-kilat/rank.svg)](https://make.fun/bounty/best-cooking-game-20261125-0137)
+[![reward](https://make.fun/badge/best-cooking-game-20261125-0137/doms99999/mie-kilat/reward.svg)](https://make.fun/bounty/best-cooking-game-20261125-0137)
+
+# MIE KILAT — Lightning Noodles
+
+A complete, original cooking game for make.fun's **best-cooking-game-20261125-0137** bounty ($250, 10 paid places). You run the fastest noodle cart in town: orders land on the ticket rail with a patience bar, you cook noodle nests in the pot, scoop them into the bowl, add toppings to match the recipe, and ring the bell to serve — before the customer walks away.
+
+## How to play
+
+- **Click a ticket** on the order board to make it active.
+- **Click the pot (or press N)** to drop a noodle nest in. It is perfect at 5–7 seconds (green ring), burnt at 9.
+- **Click the bowl (or press S)** to scoop a ready nest into the bowl.
+- **Click a topping bin (or press 1–7)** to add it: Ayam, Bakso, Telur, Sawi, Cabai, Bawang, Kerupuk.
+- **Click the bell (or press Space)** to serve. An exact recipe with perfect noodles pays 1.5x and grows your combo.
+- **P** pauses, **R** restarts. One shift lasts 150 seconds; lunch rush at 0:55 and dinner rush at 1:45 tighten the orders.
+
+Six original recipes: Mie Ayam Kilat, Mie Bakso Lava, Mie Telur Matahari, Mie Komplit Raja, Mie Sawi Segar, Mie Pedas Nampol. All art is drawn in code (no images), all sounds are synthesized with WebAudio — nothing is copied from any commercial game.
+
+## Run it
+
+```sh
+# any static server, e.g.
+python3 -m http.server 8080 --directory game
+# then open http://localhost:8080
+```
+
+Screenshots are deterministic renders of the game's own code: `game/src/shots.js` stages four states (`?shot=start|play|rush|serve&seed=1`).
+
+## Hand-in
+
+`main.ts` (Node 22, stdlib only) copies `game/` and `screenshots/` to `/output` and writes `/output/dossier.json` with `buildDossier` from `vendor/makefun-game.ts` (the kit's copy, unchanged).

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MIE KILAT — Gerobak mie tercepat di kota</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #170e09; }
+  body { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  #wrap { width: 1280px; max-width: 100vw; }
+  canvas { display: block; width: 100%; height: auto; background: #221610; cursor: pointer; }
+  p { color: #cbb9a3; text-align: center; font-size: 13px; margin: 10px 0 0; }
+  p b { color: #ffb020; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="game" width="1280" height="800"></canvas>
+  <p><b>MIE KILAT</b> — klik tiket, masak mie (N), angkat ke mangkuk (S), tambah bahan (1–7), bunyikan bel (Spasi). P = jeda, R = mulai ulang.</p>
+</div>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
