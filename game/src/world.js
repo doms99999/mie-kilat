@@ -146,12 +146,39 @@ export function serveActive(w) {
 }
 
 export function startShift(w) {
+  ticketSeq = 0;
   w.state = 'play';
   w.time = 0;
   w.shiftLeft = SHIFT_SECONDS;
   w.spawnIn = 3;
   spawnTicket(w);
   spawnTicket(w);
+}
+
+// Discard a burnt nest from the pot, freeing its slot. Returns true if a burnt
+// nest was removed (the P0 fix: without this, burnt nests brick the pot).
+export function discardBurnt(w, idx) {
+  if (w.state !== 'play') return false;
+  if (idx < 0 || idx >= w.pot.length) return false;
+  if (w.pot[idx].status !== 'burnt') return false;
+  w.pot.splice(idx, 1);
+  return true;
+}
+
+// Remove one topping from the bowl (toggle). Returns true if removed.
+export function removeTopping(w, id) {
+  const i = w.bowl.toppings.indexOf(id);
+  if (i === -1) return false;
+  w.bowl.toppings.splice(i, 1);
+  return true;
+}
+
+// Dump the whole bowl (misclick recovery). Returns true if anything was dumped.
+export function dumpBowl(w) {
+  if (w.state !== 'play') return false;
+  if (!w.bowl.noodles && w.bowl.toppings.length === 0) return false;
+  w.bowl = { noodles: false, perfectNoodles: false, toppings: [] };
+  return true;
 }
 
 export function restart(w) {
@@ -197,7 +224,7 @@ export function updateWorld(w, dt) {
     t.patience -= dt;
     if (t.patience <= 0) {
       const recipe = RECIPES.find((r) => r.id === t.recipeId);
-      addPopup(w, 640, 150, `Hangus! ${recipe.name} kabur`, '#e23b2e');
+      addPopup(w, 640, 196, `Hangus! ${recipe.name} kabur`, '#e23b2e');
       w.tickets.splice(i, 1);
       w.missed += 1;
       w.combo = 0;

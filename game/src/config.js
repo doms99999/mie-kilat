@@ -81,7 +81,13 @@ export const LAYOUT = {
   bottomBar: { x: 0, y: 664, w: 1280, h: 136 },
   startButton: { x: 490, y: 520, w: 300, h: 72 },
   restartButton: { x: 490, y: 560, w: 300, h: 72 },
+  dumpButton: { x: 704, y: 224, w: 88, h: 24 },
 };
+
+// Centre of pot nest i (radius 40). render.js draws here; input.js hit-tests here.
+export function nestCenter(i) {
+  return { x: LAYOUT.potNest.x + 40 + i * 78, y: LAYOUT.potNest.y + 52 };
+}
 
 export function pointInRect(px, py, r) {
   return px >= r.x && px <= r.x + r.w && py >= r.y && py <= r.y + r.h;

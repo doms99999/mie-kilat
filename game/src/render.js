@@ -5,7 +5,7 @@
 
 import {
   COLORS, H, LAYOUT, POT_BURN_AT, POT_PERFECT_FROM, POT_PERFECT_TO, RECIPES,
-  TOPPINGS, W, fmtCoins, fmtTime, recipeById, toppingById,
+  TOPPINGS, W, fmtCoins, fmtTime, nestCenter, recipeById, toppingById,
 } from './config.js';
 
 function rr(ctx, x, y, w, h, r) {
@@ -104,10 +104,14 @@ function drawTicket(ctx, t, x, y, w, h, active, now) {
   ctx.fillStyle = frac > 0.5 ? COLORS.green : frac > 0.25 ? COLORS.amber : COLORS.red;
   if (frac > 0) { rr(ctx, x + 12, y + h - 16, bw * frac, 8, 4); ctx.fill(); }
   if (frac <= 0.25) {
-    // Urgent tickets pulse.
-    ctx.globalAlpha = 0.5 + 0.5 * Math.sin(now * 6);
-    text(ctx, 'CEPAT!', x + w - 14, y + h - 12, 12, COLORS.red, 'bold', 'right');
-    ctx.globalAlpha = 1;
+    // Urgent tickets shout: solid red label on a dark pill so it never
+    // vanishes at capture time (was a pulsing alpha before).
+    ctx.font = 'bold 12px system-ui, sans-serif';
+    const label = 'CEPAT!';
+    const lw = ctx.measureText(label).width + 12;
+    rr(ctx, x + w - 14 - lw, y + h - 15, lw, 13, 4);
+    ctx.fillStyle = 'rgba(20,8,6,0.85)'; ctx.fill();
+    text(ctx, label, x + w - 14 - 6, y + h - 8, 12, '#ff6a5a', 'bold', 'right');
   }
   ctx.restore();
 }
@@ -138,8 +142,9 @@ function drawPot(ctx, w, now) {
     text(ctx, 'Panci kosong — klik untuk masukkan mie', p.x + p.w / 2, nest.y + nest.h / 2, 14, '#cbb9a3', 'bold', 'center');
   }
   w.pot.forEach((n, i) => {
-    const cx = nest.x + 46 + i * 82;
-    const cy = nest.y + 52;
+    const c = nestCenter(i);
+    const cx = c.x;
+    const cy = c.y;
     const col = n.status === 'ready' ? COLORS.green : n.status === 'burnt' ? '#3a2a22' : COLORS.amber;
     // Noodle nest: wavy strokes.
     ctx.strokeStyle = n.status === 'burnt' ? '#241812' : '#f2c14e';
@@ -173,7 +178,7 @@ function drawPot(ctx, w, now) {
 function drawBowl(ctx, w) {
   const b = LAYOUT.bowl;
   ctx.save();
-  text(ctx, 'MEJA RACIK  —  klik untuk angkat mie dari panci (S)', b.x + 8, b.y + 18, 14, COLORS.cream);
+  text(ctx, 'MEJA RACIK', b.x + 8, b.y + 18, 14, COLORS.cream);
   // Counter slab.
   rr(ctx, b.x, b.y + 40, b.w, 170, 14);
   ctx.fillStyle = COLORS.counterTop; ctx.fill();
@@ -201,23 +206,31 @@ function drawBowl(ctx, w) {
       ctx.bezierCurveTo(cx - 12, cy - 14 + k * 8, cx + 12, cy + 2 + k * 8, cx + 38, cy - 6 + k * 8);
       ctx.stroke();
     }
-    // Toppings on top.
+    // Toppings on top, centred on the bowl so the 5th never hangs off the rim.
+    const nTop = w.bowl.toppings.length;
     w.bowl.toppings.forEach((id, i) => {
-      drawToppingIcon(ctx, id, cx - 36 + i * 26, cy - 22, 13);
+      drawToppingIcon(ctx, id, cx + (i - (nTop - 1) / 2) * 26, cy - 22, 13);
     });
     if (w.bowl.perfectNoodles) {
       text(ctx, 'MIE SEMPURNA', cx, cy - 78, 12, COLORS.green, 'bold', 'center');
     }
   }
+  // Dump button (top-right of the panel): clears the bowl for a fresh start.
+  const db = LAYOUT.dumpButton;
+  rr(ctx, db.x, db.y, db.w, db.h, 6);
+  ctx.fillStyle = w.bowl.noodles || w.bowl.toppings.length ? '#5a2d1a' : '#3a2a20';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,243,214,0.4)'; ctx.lineWidth = 1; ctx.stroke();
+  text(ctx, 'BUANG (X)', db.x + db.w / 2, db.y + 13, 12, COLORS.cream, 'bold', 'center');
   // Recipe checklist for the active ticket.
   const t = w.tickets[w.activeTicket];
   if (t) {
     const recipe = recipeById(t.recipeId);
-    text(ctx, `Target: ${recipe.name}`, b.x + 8, b.y + p226(b), 13, COLORS.cream);
+    text(ctx, `Target: ${recipe.name}`, b.x + 8, b.y + 226, 13, COLORS.cream);
     recipe.toppings.forEach((id, i) => {
       const done = w.bowl.toppings.includes(id);
       const x = b.x + 16 + i * 92;
-      const y = b.y + p226(b) + 22;
+      const y = b.y + 226 + 22;
       drawToppingIcon(ctx, id, x + 10, y, 11);
       ctx.fillStyle = done ? COLORS.green : 'rgba(255,243,214,0.6)';
       ctx.font = 'bold 13px system-ui, sans-serif';
@@ -226,10 +239,6 @@ function drawBowl(ctx, w) {
     });
   }
   ctx.restore();
-}
-
-function p226(b) {
-  return 226;
 }
 
 function drawBins(ctx, w) {
@@ -282,8 +291,6 @@ function drawPass(ctx, w, now) {
   });
   // Bell.
   const bell = LAYOUT.bell;
-  const ring = w.popups.length && now ? 0 : 0;
-  void ring;
   rr(ctx, bell.x, bell.y, bell.w, bell.h, 14);
   ctx.fillStyle = '#3d2a18'; ctx.fill();
   ctx.strokeStyle = COLORS.amber; ctx.lineWidth = 3; ctx.stroke();
@@ -329,7 +336,7 @@ function drawBottomBar(ctx, w) {
   ctx.fillStyle = '#170e09';
   ctx.fillRect(b.x, b.y, b.w, b.h);
   text(ctx, 'Cara main:  klik tiket → masak mie di panci (N) → angkat ke mangkuk (klik mangkuk / S) → tambah bahan (klik / 1–7) → bunyikan bel (Spasi) untuk sajikan.', 24, b.y + 26, 15, COLORS.cream);
-  text(ctx, 'Mie sempurna 5–7 detik = harga x1.5 • Sajikan tepat = kombo naik • Tiket yang kehabisan waktu bikin kombo putus.', 24, b.y + 52, 14, '#cbb9a3');
+  text(ctx, 'Mie sempurna 5–7 detik = harga x1.5 • Sajikan tepat = kombo naik • Tiket yang kehabisan waktu bikin kombo putus • Klik mie gosong untuk buang • X = buang mangkuk.', 24, b.y + 52, 14, '#cbb9a3');
   text(ctx, `Disajikan ${w.served}   •   Perfect ${w.perfect}   •   Hangus ${w.missed}   •   Kombo terbaik x${w.bestCombo}`, 24, b.y + 84, 14, COLORS.amber, 'bold');
   text(ctx, 'P = jeda   •   R = mulai ulang', 1240, b.y + 84, 14, '#cbb9a3', 'bold', 'right');
   ctx.restore();
@@ -354,7 +361,13 @@ function drawPopups(ctx, w) {
     const a = 1 - p.t / p.life;
     ctx.save();
     ctx.globalAlpha = Math.max(0, a);
-    text(ctx, p.text, p.x, p.y - p.t * 40, 22, p.color, 'bold', 'center');
+    // Dark pill behind the text so a popup never swallows the tile under it.
+    ctx.font = 'bold 22px system-ui, sans-serif';
+    const tw = ctx.measureText(p.text).width;
+    const py = p.y - p.t * 40;
+    rr(ctx, p.x - tw / 2 - 14, py - 18, tw + 28, 36, 10);
+    ctx.fillStyle = 'rgba(20,10,6,0.88)'; ctx.fill();
+    text(ctx, p.text, p.x, py, 22, p.color, 'bold', 'center');
     ctx.restore();
   }
 }

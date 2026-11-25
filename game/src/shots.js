@@ -78,7 +78,7 @@ export function applyShot(name, seed = 1) {
     w.bestCombo = 6;
     w.served = 13;
     w.perfect = 9;
-    w.popups = [{ x: 1148, y: 470, text: 'PERFECT! +2.250', color: '#ffb020', t: 0.3, life: 1.4 }];
+    w.popups = [{ x: 1130, y: 490, text: 'PERFECT! +2.250', color: '#ffb020', t: 0.3, life: 1.4 }];
     return w;
   }
   return w;

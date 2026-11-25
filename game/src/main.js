@@ -8,8 +8,8 @@ import { render } from './render.js';
 import { sfx } from './audio.js';
 import { applyShot, shotFromUrl } from './shots.js';
 import {
-  activeTicket, addTopping, cookNoodles, createWorld, restart, scoopNoodles,
-  serveActive, setActiveTicket, startShift, updateWorld,
+  addTopping, cookNoodles, createWorld, discardBurnt, dumpBowl, removeTopping,
+  restart, scoopNoodles, serveActive, setActiveTicket, startShift, updateWorld,
 } from './world.js';
 
 const canvas = document.getElementById('game');
@@ -21,7 +21,7 @@ const world = shot ? applyShot(shot.shot, shot.seed) : createWorld(1);
 const input = createInput(canvas, null);
 window.__game = { world };
 
-function popup(text, color, x = 1148, y = 470) {
+function popup(text, color, x = 1130, y = 490) {
   world.popups.push({ x, y, text, color, t: 0, life: 1.4 });
   if (world.popups.length > 8) world.popups.shift();
 }
@@ -63,6 +63,20 @@ function handleAction(a) {
     else sfx('bad');
     return;
   }
+  if (a.type === 'discard') {
+    if (discardBurnt(world, a.index)) {
+      sfx('pop');
+      popup('Mie gosong dibuang', '#e23b2e');
+    } else sfx('bad');
+    return;
+  }
+  if (a.type === 'dump') {
+    if (dumpBowl(world)) {
+      sfx('bad');
+      popup('Mangkuk dibuang, racik lagi', '#e23b2e');
+    } else sfx('bad');
+    return;
+  }
   if (a.type === 'scoop') {
     const r = scoopNoodles(world);
     if (r === 'ok') sfx('pop');
@@ -70,6 +84,11 @@ function handleAction(a) {
     return;
   }
   if (a.type === 'topping') {
+    // Toggle: clicking a topping already in the bowl takes it back out.
+    if (world.bowl.toppings.includes(a.id)) {
+      if (removeTopping(world, a.id)) sfx('click');
+      return;
+    }
     const r = addTopping(world, a.id);
     if (r === 'ok') sfx('click');
     else sfx('bad');
@@ -97,11 +116,14 @@ function handleAction(a) {
 
 let last = performance.now();
 function frame(nowMs) {
-  const now = nowMs / 1000;
+  // In frozen ?shot= mode, time is fixed so steam, hints and flashes render
+  // identically on every capture (P2-2: wall-clock pulses made screenshots
+  // non-reproducible).
+  const now = world.frozen ? 1.234 : nowMs / 1000;
   let dt = Math.min(0.05, (nowMs - last) / 1000);
   last = nowMs;
   if (Number.isNaN(dt) || dt < 0) dt = 0;
-  for (const a of input.drain(world.tickets.length)) handleAction(a);
+  for (const a of input.drain(world.tickets.length, world.pot)) handleAction(a);
   updateWorld(world, dt);
   render(ctx, world, now);
   requestAnimationFrame(frame);

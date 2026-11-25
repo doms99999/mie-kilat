@@ -34,3 +34,7 @@ Screenshots are deterministic renders of the game's own code: `game/src/shots.js
 ## Development notes
 
 The game was built in one recorded session: research first (kit rules, the judge's screenshot-first criteria, and the winning pattern from best-game-01's top entries — one memorable mechanic plus visible progression), then the code, then a visual pass. The core loop was verified in Node before screenshots were taken: cook 6s → ready → scoop → three toppings → perfect serve pays 2,533 coins and starts a combo, and the shift ends cleanly at 150s. Screenshots were re-shot after two fixes — the pot's ready hint went from per-nest to one shared line, and the rush banner was shortened so it never covers a panel header. Both runs of `main.ts` produce byte-identical output.
+
+## v2 — post-submit revision (audit-driven)
+
+The post-build audit caught one real soft-lock: burnt nests could never leave the pot, so three burns bricked cooking for the rest of the shift. v2 fixes it — click a burnt nest to discard it — and adds topping toggle (click a topping in the bowl to take it back out) plus a BUANG (X) button that dumps the bowl, so a misclick never forces a 0.6x serve. The serve popup moved to a dark pill above the bell, the CEPAT! urgent label is now solid on a dark pill instead of a pulsing alpha (it vanished in the rush screenshot), screenshot time is frozen so re-shoots are reproducible, and the dead `p226` stub and `void ring` are gone. All four screenshots were re-shot and re-verified after the fixes.

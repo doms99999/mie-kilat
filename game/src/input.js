@@ -2,7 +2,7 @@
 // actions. Hit-testing uses the same LAYOUT rects render.js draws, so a button
 // never drifts from its drawing. The main loop pulls events from the queue.
 
-import { LAYOUT, TOPPINGS, pointInRect } from './config.js';
+import { LAYOUT, TOPPINGS, nestCenter, pointInRect } from './config.js';
 
 export function createInput(canvas, onAction) {
   const queue = [];
@@ -41,6 +41,7 @@ export function createInput(canvas, onAction) {
     if (k === ' ') { e.preventDefault(); queue.push({ type: 'serve' }); }
     else if (k === 'n') queue.push({ type: 'cook' });
     else if (k === 's') queue.push({ type: 'scoop' });
+    else if (k === 'x') queue.push({ type: 'dump' });
     else if (k === 'r') queue.push({ type: 'restart' });
     else if (k === 'p' || k === 'escape') queue.push({ type: 'pause' });
     else if (k === 'enter') queue.push({ type: 'confirm' });
@@ -51,9 +52,20 @@ export function createInput(canvas, onAction) {
   });
 
   // Resolve one raw click into a named action using the shared layout.
-  function resolveClick(x, y, ticketCount) {
+  // potNests is the world's current pot (for burnt-nest discard hit-testing).
+  function resolveClick(x, y, ticketCount, potNests = []) {
     for (let i = 0; i < ticketCount; i++) {
       if (pointInRect(x, y, ticketRect(i))) return { type: 'ticket', index: i };
+    }
+    if (pointInRect(x, y, LAYOUT.dumpButton)) return { type: 'dump' };
+    // A click on a burnt nest discards it (the P0 fix); anywhere else in the
+    // pot drops a fresh nest in.
+    for (let i = 0; i < potNests.length; i++) {
+      const c = nestCenter(i);
+      const dx = x - c.x, dy = y - c.y;
+      if (dx * dx + dy * dy <= 40 * 40 && potNests[i].status === 'burnt') {
+        return { type: 'discard', index: i };
+      }
     }
     if (pointInRect(x, y, LAYOUT.pot)) return { type: 'cook' };
     if (pointInRect(x, y, LAYOUT.bowl)) return { type: 'scoop' };
@@ -67,12 +79,13 @@ export function createInput(canvas, onAction) {
   }
 
   return {
-    // Drain the queue, resolving clicks against the current ticket count.
-    drain(ticketCount) {
+    // Drain the queue, resolving clicks against the current ticket count and
+    // pot nests (burnt-nest discard needs the nest states).
+    drain(ticketCount, potNests = []) {
       const out = [];
       while (queue.length) {
         const ev = queue.shift();
-        if (ev.type === 'click') out.push(resolveClick(ev.x, ev.y, ticketCount));
+        if (ev.type === 'click') out.push(resolveClick(ev.x, ev.y, ticketCount, potNests));
         else out.push(ev);
       }
       return out;
