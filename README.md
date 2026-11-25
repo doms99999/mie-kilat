@@ -38,3 +38,7 @@ The game was built in one recorded session: research first (kit rules, the judge
 ## v2 — post-submit revision (audit-driven)
 
 The post-build audit caught one real soft-lock: burnt nests could never leave the pot, so three burns bricked cooking for the rest of the shift. v2 fixes it — click a burnt nest to discard it — and adds topping toggle (click a topping in the bowl to take it back out) plus a BUANG (X) button that dumps the bowl, so a misclick never forces a 0.6x serve. The serve popup moved to a dark pill above the bell, the CEPAT! urgent label is now solid on a dark pill instead of a pulsing alpha (it vanished in the rush screenshot), screenshot time is frozen so re-shoots are reproducible, and the dead `p226` stub and `void ring` are gone. All four screenshots were re-shot and re-verified after the fixes.
+
+## v3 — the chef (user request)
+
+The game had no person in it, so v3 adds KOKI, the chef who prepares the food: a vector-drawn vendor with a toque, apron and name tag, standing left of the pot with a ladle that stirs the pot (the ladle bobs on the same frozen clock as the steam, so screenshots stay reproducible). The same chef appears large on the title screen. To make room, the pot shifted right and the bowl panel narrowed; the recipe checklist is now icons with a green ring + tick for toppings already in the bowl. The pot header typo ("PANCi") was fixed along the way. All four screenshots were re-shot and re-verified after the change.

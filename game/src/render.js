@@ -119,7 +119,7 @@ function drawTicket(ctx, t, x, y, w, h, active, now) {
 function drawPot(ctx, w, now) {
   const p = LAYOUT.pot;
   ctx.save();
-  text(ctx, 'PANCi MIE  —  klik untuk masak (N)', p.x + 8, p.y + 18, 14, COLORS.cream);
+  text(ctx, 'PANCI MIE  —  klik untuk masak (N)', p.x + 8, p.y + 18, 14, COLORS.cream);
   // Pot body.
   rr(ctx, p.x + 24, p.y + 44, p.w - 48, 150, 18);
   ctx.fillStyle = COLORS.pot; ctx.fill();
@@ -227,17 +227,63 @@ function drawBowl(ctx, w) {
   if (t) {
     const recipe = recipeById(t.recipeId);
     text(ctx, `Target: ${recipe.name}`, b.x + 8, b.y + 226, 13, COLORS.cream);
+    // Checklist as icons only (the narrow panel has no room for names):
+    // a green ring + tick marks a topping already in the bowl.
     recipe.toppings.forEach((id, i) => {
       const done = w.bowl.toppings.includes(id);
-      const x = b.x + 16 + i * 92;
+      const x = b.x + 30 + i * 40;
       const y = b.y + 226 + 22;
-      drawToppingIcon(ctx, id, x + 10, y, 11);
-      ctx.fillStyle = done ? COLORS.green : 'rgba(255,243,214,0.6)';
-      ctx.font = 'bold 13px system-ui, sans-serif';
-      ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-      ctx.fillText(`${done ? '✓' : '○'} ${toppingById(id).name}`, x + 26, y);
+      drawToppingIcon(ctx, id, x, y, 12);
+      ctx.lineWidth = done ? 2.5 : 1.5;
+      ctx.strokeStyle = done ? COLORS.green : 'rgba(255,243,214,0.35)';
+      ctx.beginPath(); ctx.arc(x, y, 15, 0, Math.PI * 2); ctx.stroke();
+      if (done) text(ctx, '✓', x + 14, y - 12, 12, COLORS.green, 'bold', 'center');
     });
   }
+  ctx.restore();
+}
+
+// The chef who prepares the food: toque, face, apron, and a stirring arm
+// whose ladle dips into the pot (bob follows `now`, frozen in ?shot= mode).
+// (cx, top) is the centre of the hat; s scales the whole figure.
+function drawChef(ctx, cx, top, s, now) {
+  const bob = Math.sin(now * 2) * 4 * s;
+  ctx.save();
+  // Toque.
+  ctx.fillStyle = '#fff8e8';
+  ctx.beginPath(); ctx.arc(cx - 14 * s, top + 14 * s, 12 * s, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + 14 * s, top + 14 * s, 12 * s, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx, top + 8 * s, 16 * s, 0, Math.PI * 2); ctx.fill();
+  ctx.fillRect(cx - 22 * s, top + 20 * s, 44 * s, 10 * s);
+  // Head.
+  ctx.fillStyle = '#f2c184';
+  ctx.beginPath(); ctx.arc(cx, top + 56 * s, 22 * s, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#2b1c10';
+  ctx.beginPath(); ctx.arc(cx - 8 * s, top + 52 * s, 2.5 * s, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + 8 * s, top + 52 * s, 2.5 * s, 0, Math.PI * 2); ctx.fill();
+  // Smile + moustache.
+  ctx.strokeStyle = '#2b1c10'; ctx.lineWidth = 2 * s; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.arc(cx, top + 60 * s, 8 * s, 0.15 * Math.PI, 0.85 * Math.PI); ctx.stroke();
+  ctx.strokeStyle = '#5a2d1a'; ctx.lineWidth = 3 * s;
+  ctx.beginPath(); ctx.moveTo(cx - 9 * s, top + 62 * s); ctx.quadraticCurveTo(cx, top + 58 * s, cx + 9 * s, top + 62 * s); ctx.stroke();
+  // Body: dark shirt, white apron with a name tag.
+  ctx.fillStyle = '#7a2d22';
+  rr(ctx, cx - 34 * s, top + 78 * s, 68 * s, 176 * s, 12 * s); ctx.fill();
+  ctx.fillStyle = '#fff8e8';
+  rr(ctx, cx - 24 * s, top + 78 * s, 48 * s, 176 * s, 10 * s); ctx.fill();
+  ctx.fillStyle = '#2b7a8c';
+  text(ctx, 'KOKI', cx, top + 124 * s, 12 * s, '#2b7a8c', 'bold', 'center');
+  // Left arm resting on the counter.
+  ctx.strokeStyle = '#7a2d22'; ctx.lineWidth = 10 * s; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(cx - 30 * s, top + 92 * s); ctx.lineTo(cx - 44 * s, top + 170 * s); ctx.stroke();
+  // Right arm stirring: shoulder to ladle over the pot.
+  ctx.strokeStyle = '#f2c184'; ctx.lineWidth = 9 * s;
+  ctx.beginPath(); ctx.moveTo(cx + 28 * s, top + 94 * s); ctx.lineTo(cx + 82 * s, top + 138 * s + bob); ctx.stroke();
+  // Ladle: handle + little bowl.
+  ctx.strokeStyle = '#3d3a44'; ctx.lineWidth = 4 * s;
+  ctx.beginPath(); ctx.moveTo(cx + 82 * s, top + 138 * s + bob); ctx.lineTo(cx + 100 * s, top + 158 * s + bob); ctx.stroke();
+  ctx.fillStyle = '#c8ccd4';
+  ctx.beginPath(); ctx.arc(cx + 102 * s, top + 162 * s + bob, 7 * s, 0, Math.PI * 2); ctx.fill();
   ctx.restore();
 }
 
@@ -372,12 +418,13 @@ function drawPopups(ctx, w) {
   }
 }
 
-function drawTitle(ctx, w) {
+function drawTitle(ctx, w, now) {
   ctx.save();
   ctx.fillStyle = 'rgba(20,12,7,0.82)';
   ctx.fillRect(0, 0, W, H);
+  drawChef(ctx, 1100, 200, 1.6, now);
   text(ctx, 'MIE KILAT', 640, 250, 84, COLORS.amber, 'bold', 'center');
-  text(ctx, 'Gerobak mie tercepat di kota — masak, racik, sajikan sebelum pelanggan kabur!', 640, 312, 22, COLORS.cream, 'bold', 'center');
+  text(ctx, 'Gerobak mie tercepat di kota — masak, racik, sajikan!', 640, 312, 22, COLORS.cream, 'bold', 'center');
   text(ctx, '1. Klik tiket di papan pesanan   •   2. Masak mie 5–7 detik sampai SIAP', 640, 372, 18, COLORS.cream, 'bold', 'center');
   text(ctx, '3. Racik topping sesuai resep   •   4. Bunyikan bel untuk sajikan — kombo menanti!', 640, 402, 18, COLORS.cream, 'bold', 'center');
   const b = LAYOUT.startButton;
@@ -446,6 +493,9 @@ export function render(ctx, w, now) {
   });
 
   drawPot(ctx, w, now);
+  // The chef stands left of the pot, stirring — drawn after the pot so the
+  // ladle arm rests over the pot rim.
+  drawChef(ctx, 114, 216, 1, now);
   drawBowl(ctx, w);
   drawBins(ctx, w);
   drawPass(ctx, w, now);
@@ -453,7 +503,7 @@ export function render(ctx, w, now) {
   drawBanner(ctx, w);
   drawPopups(ctx, w);
 
-  if (w.state === 'title') drawTitle(ctx, w);
+  if (w.state === 'title') drawTitle(ctx, w, now);
   if (w.state === 'end') drawEnd(ctx, w);
   if (w.paused && w.state === 'play') {
     ctx.fillStyle = 'rgba(20,12,7,0.7)';

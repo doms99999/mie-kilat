@@ -72,9 +72,10 @@ export const SPAWN_PLAN = [
 export const LAYOUT = {
   topBar: { x: 0, y: 0, w: 1280, h: 64 },
   tickets: { x: 24, y: 76, w: 1232, h: 96, cardW: 296, gap: 16 },
-  pot: { x: 48, y: 216, w: 300, h: 260 },
-  potNest: { x: 78, y: 300, w: 240, h: 120 },
-  bowl: { x: 420, y: 216, w: 380, h: 260 },
+  // The chef stands in the x 48–180 column; the pot shifts right to make room.
+  pot: { x: 180, y: 216, w: 300, h: 260 },
+  potNest: { x: 210, y: 300, w: 240, h: 120 },
+  bowl: { x: 480, y: 216, w: 320, h: 260 },
   bins: { x: 852, y: 216, w: 380, h: 260 },
   pass: { x: 48, y: 500, w: 752, h: 140 },
   bell: { x: 1064, y: 500, w: 168, h: 140 },
